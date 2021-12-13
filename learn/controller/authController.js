@@ -96,7 +96,7 @@ module.exports.isAuthorized = function isAuthorized(roles) {
     }
 }
 
-module.exports.protectRoute = async function protectRoute(req, res,next) {
+module.exports.protectRoute = async function protectRoute(req, res, next) {
     try {
         let token;
 
@@ -117,9 +117,13 @@ module.exports.protectRoute = async function protectRoute(req, res,next) {
                 })
             }
 
-        }else {
+        } else {
+            const client = req.get('User-Agent');
+            if(client.includes("Chrome") == true){
+                return res.redirect('/login');
+            }
             res.json({
-                message:"plz Login"
+                message: "plz Login"
             });
         }
     } catch (error) {
@@ -128,4 +132,63 @@ module.exports.protectRoute = async function protectRoute(req, res,next) {
         })
     }
 
+}
+
+
+module.exports.forgetPassword = async function forgetPassword(req, res) {
+    let { emailv } = req.body;
+    try {
+        const user = await userModel.findOne({ email: emailv });
+
+        if (user) {
+            const resetToken = user.createResetToken();
+            let resetPassLink = `${req.protocol}://${req.get('host')}/resetPassword/${resetToken}`;
+
+        } else {
+            res.json({
+                message: 'Please Signup'
+            });
+        }
+
+    } catch (error) {
+        return res.status(500).json({
+            message: error.message
+        });
+    }
+}
+
+module.exports.resetPassword = async function resetPassword(req, res) {
+    try {
+        const token = req.params.token;
+        let { password, confirmPassword } = req.body;
+
+        const user = await userModel.findOne({ resetToken: token });
+        if (user) {
+            user.resetPasswordHandler(password, confirmPassword);
+            await user.save();
+
+            res.json({
+                message: 'Password changed successfully Plz login again'
+            });
+        } else {
+            res.json({
+                message: 'user not valid'
+            });
+        }
+
+    } catch (error) {
+        res.json({
+            message: error.message
+        })
+    }
+
+}
+
+
+
+module.exports.logoutUser = function logoutUser(req,res){
+    res.cookie('isLoggedIn','',{maxAge:1});
+    res.json({
+        message:'user logged out successfully'
+    });
 }

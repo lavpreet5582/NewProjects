@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const emailValidator = require('email-validator');
 // const bcrypt = require('bcrypt');
-
+const crypto = require('crypto');
 const { db_link } = require('../../secrets');
 mongoose.connect(db_link).then(function (db) {
     // console.log(db);
@@ -44,7 +44,8 @@ const userSchema = mongoose.Schema({
     profileImage: {
         type: String,
         default: 'img/users/default.jpeg'
-    }
+    },
+    resetToken: String
 
 });
 
@@ -65,8 +66,19 @@ userSchema.pre('save', function () {
 //     // console.log(doc);
 // });
 
+userSchema.methods.createResetToken = function () {
+    const resetToken = crypto.randomBytes(32).toString('hex');
+    this.resetToken = resetToken;
+    return resetToken;
+}
 
 
+userSchema.methods.resetPasswordHandler = function(password,confirmPassword){
+    this.password = password;
+    this.confirmPassword = confirmPassword;
+
+    this.resetToken = undefined;
+}
 //modal
 
 const userModel = mongoose.model('userModel', userSchema);
