@@ -100,7 +100,11 @@ module.exports.getUser = async function getUser(req, res) {
 
 }
 
-
+module.exports.updateProfileImage = function updateProfileImage(req,res){
+    res.json({
+        message:'file Uploaded'
+    });
+}
 
 // function setCookies(req, res) {
 //     // res.setHeader('Set-Cookie','isLoggedIn=true');

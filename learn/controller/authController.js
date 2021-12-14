@@ -1,6 +1,7 @@
 const { JWT_Key } = require('../../secrets');
 const jwt = require('jsonwebtoken');
 const userModel = require('../models/userModel');
+const { sendMail } = require('../nodemailer');
 
 
 // function getSignup(req, res) {
@@ -21,6 +22,7 @@ module.exports.userSignup = async function userSignup(req, res) {
     try {
         let data = req.body;
         let user = await userModel.create(data);
+        sendMail("signup",user);
         if (user) {
             return res.json({
                 message: "user Signed Up",
@@ -106,10 +108,10 @@ module.exports.protectRoute = async function protectRoute(req, res, next) {
             // console.log('payload',payload);
             if (payload) {
                 const user = await userModel.findById(payload.payload);
-                console.log(user);
+                // console.log(user);
                 req.role = user.role;
                 req.id = user.id;
-                console.log(req.id);
+                // console.log(req.id);
                 next();
             } else {
                 return res.json({
@@ -143,7 +145,11 @@ module.exports.forgetPassword = async function forgetPassword(req, res) {
         if (user) {
             const resetToken = user.createResetToken();
             let resetPassLink = `${req.protocol}://${req.get('host')}/resetPassword/${resetToken}`;
-
+            let obj = {
+                resetPassLink:resetPassLink,
+                email:emailv
+            }
+            sendMail("resetPassword",obj);
         } else {
             res.json({
                 message: 'Please Signup'
@@ -183,8 +189,6 @@ module.exports.resetPassword = async function resetPassword(req, res) {
     }
 
 }
-
-
 
 module.exports.logoutUser = function logoutUser(req,res){
     res.cookie('isLoggedIn','',{maxAge:1});

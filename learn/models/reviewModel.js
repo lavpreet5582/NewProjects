@@ -43,6 +43,6 @@ reviewSchema.pre(/^find/, function (next) {
     next();
 })
 
-const reviewModel = await mongoose.model('reviewModel', reviewSchema);
+const reviewModel =  mongoose.model('reviewModel', reviewSchema);
 
 module.exports = reviewModel;

@@ -52,8 +52,12 @@ module.exports.top3Reviews = async function top3Reviews(req, res) {
 module.exports.getPlanReviews = async function getPlanReviews(req, res) {
 
     try {
-        let id = req.params.id;
-        const review = await reviewModel.findById(id);
+        let planId = req.params.id;
+        const reviews = await reviewModel.find();
+        const review = reviews.filter(rev=>{
+            return rev.plan._id==planId;
+        })
+        // console.log(review);
         if (review) {
             return res.json({
                 message: "reviews retrieved",
@@ -76,9 +80,12 @@ module.exports.getPlanReviews = async function getPlanReviews(req, res) {
 
 module.exports.createReview = async function createReview(req, res) {
     try {
-        let id = req.params.id;
+        let id = req.params.plan;
+        // console.log(id);
         let plan = await planModel.findById(id);
+        // console.log(plan);
         let review = await reviewModel.create(req.body);
+        // console.log(review);
         if (plan) {
             plan.rating = ((plan.rating * plan.noOfReviews) + req.body.rating) / (plan.noOfReviews + 1);
             plan.noOfReviews = plan.noOfReviews + 1;
@@ -135,7 +142,8 @@ module.exports.updateReview = async function updateReview(req, res) {
 
 module.exports.deleteReview = async function deleteReview(req, res) {
     try {
-        let id = rea.params.id;
+        let id = req.params.id;
+        // console.log(id);
         const deletedReview = await reviewModel.findByIdAndDelete(id);
         if (deletedReview) {
             return res.json({

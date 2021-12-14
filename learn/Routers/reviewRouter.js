@@ -1,8 +1,8 @@
 // const reviewModel = require('../models/reviewModel');
 const express = require('express');
 const reviewRouter = express.Router();
-const { prtectRoute } = require('../controller/authController');
-const {getAllReviews,getReview,updateReview,deleteReview,createView,top3Reviews} = require('../controller/reviewController');
+const { protectRoute } = require('../controller/authController');
+const {getAllReviews,getPlanReviews,updateReview,deleteReview,createReview,top3Reviews} = require('../controller/reviewController');
 
 reviewRouter.route('/all')
     .get(getAllReviews);
@@ -16,13 +16,13 @@ reviewRouter
 
 reviewRouter
     .route('/:id')
-    .get(getReview);
+    .get(getPlanReviews);
 
 
-reviewRouter.use(prtectRoute);
+reviewRouter.use(protectRoute);
 reviewRouter
     .route('/crud/:plan')
-    .post(createView);
+    .post(createReview);
 
 reviewRouter
     .route('/crud/:id')
